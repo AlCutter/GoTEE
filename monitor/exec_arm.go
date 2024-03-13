@@ -117,6 +117,8 @@ type ExecCtx struct {
 	// user/secure execution contexts.
 	Domain uint32
 
+	SafeMemoryLow uint
+
 	// Handler, if not nil, handles user syscalls
 	Handler func(ctx *ExecCtx) error
 

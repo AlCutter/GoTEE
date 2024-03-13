@@ -9,6 +9,7 @@ package monitor
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/rpc/jsonrpc"
 	errno "syscall"
 
@@ -87,6 +88,13 @@ func (ctx *ExecCtx) Flush(err error) (int, error) {
 		n = r
 	}
 
+	if ctx.SafeMemoryLow > 0 && ctx.A1() < ctx.SafeMemoryLow {
+		log.Printf("OOB memory write: 0x%x < 0x%x", ctx.A1(), ctx.SafeMemoryLow)
+		log.Printf("n: %d", n)
+		log.Printf("ctx.out len: %d", r)
+		ctx.Ret(-(int(errno.EINVAL)))
+		return 0, nil
+	}
 	ctx.Memory.Write(ctx.Memory.Start(), int(off), ctx.out[0:n])
 	ctx.Ret(n)
 
